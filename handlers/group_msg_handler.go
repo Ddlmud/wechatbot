@@ -11,11 +11,13 @@ var _ MessageHandlerInterface = (*GroupMessageHandler)(nil)
 
 // GroupMessageHandler 群消息处理
 type GroupMessageHandler struct {
+	gpt     gtp.GPTChat
+	history []string
 }
 
 // handle 处理消息
 func (g *GroupMessageHandler) handle(msg *openwechat.Message) error {
-	if msg.IsText() {
+	if msg.IsText() && msg.CreateTime > ServerStartTime {
 		return g.ReplyText(msg)
 	}
 	return nil
@@ -23,7 +25,8 @@ func (g *GroupMessageHandler) handle(msg *openwechat.Message) error {
 
 // NewGroupMessageHandler 创建群消息处理器
 func NewGroupMessageHandler() MessageHandlerInterface {
-	return &GroupMessageHandler{}
+	chat := gtp.New()
+	return &GroupMessageHandler{gpt: chat, history: make([]string, 0)}
 }
 
 // ReplyText 发送文本消息到群
@@ -34,14 +37,22 @@ func (g *GroupMessageHandler) ReplyText(msg *openwechat.Message) error {
 	log.Printf("Received Group %v Text Msg : %v", group.NickName, msg.Content)
 
 	// 不是@的不处理
-	if !msg.IsAt() {
+	if !msg.IsAt() || !strings.Contains(msg.Content, "[旺柴][旺柴]") {
 		return nil
+	}
+	if strings.Contains(msg.Content, "[旺柴][旺柴]新会话") {
+		g.history = make([]string, 0)
 	}
 
 	// 替换掉@文本，然后向GPT发起请求
 	replaceText := "@" + sender.Self.NickName
 	requestText := strings.TrimSpace(strings.ReplaceAll(msg.Content, replaceText, ""))
-	reply, err := gtp.Completions(requestText)
+	requestText = strings.ReplaceAll(msg.Content, "[旺财][旺财]", "")
+	if requestText == "" {
+		return nil
+	}
+	g.history = append(g.history, requestText)
+	reply, err := g.gpt.Completion(g.history...)
 	if err != nil {
 		log.Printf("gtp request error: %v \n", err)
 		msg.ReplyText("机器人神了，我一会发现了就去修。")
