@@ -12,7 +12,7 @@ var _ MessageHandlerInterface = (*GroupMessageHandler)(nil)
 // GroupMessageHandler 群消息处理
 type GroupMessageHandler struct {
 	gpt     gtp.GPTChat
-	history []string
+	history map[string][]string
 }
 
 // handle 处理消息
@@ -26,7 +26,7 @@ func (g *GroupMessageHandler) handle(msg *openwechat.Message) error {
 // NewGroupMessageHandler 创建群消息处理器
 func NewGroupMessageHandler() MessageHandlerInterface {
 	chat := gtp.New()
-	return &GroupMessageHandler{gpt: chat, history: make([]string, 0)}
+	return &GroupMessageHandler{gpt: chat, history: make(map[string][]string, 0)}
 }
 
 // ReplyText 发送文本消息到群
@@ -40,8 +40,14 @@ func (g *GroupMessageHandler) ReplyText(msg *openwechat.Message) error {
 	if !msg.IsAt() || !strings.Contains(msg.Content, "[旺柴][旺柴]") {
 		return nil
 	}
+	// 处理下上下文历史记录
+	_, ok := g.history[sender.NickName]
+	if !ok {
+		g.history[sender.NickName] = make([]string, 0)
+	}
+	// 如果是新会话，则清空历史记录
 	if strings.Contains(msg.Content, "[旺柴][旺柴]新会话") {
-		g.history = make([]string, 0)
+		g.history[sender.NickName] = make([]string, 0)
 	}
 
 	// 替换掉@文本，然后向GPT发起请求
@@ -51,8 +57,8 @@ func (g *GroupMessageHandler) ReplyText(msg *openwechat.Message) error {
 	if requestText == "" {
 		return nil
 	}
-	g.history = append(g.history, requestText)
-	reply, err := g.gpt.Completion(g.history...)
+	g.history[sender.NickName] = append(g.history[sender.NickName], requestText)
+	reply, err := g.gpt.Completion(g.history[sender.NickName]...)
 	if err != nil {
 		log.Printf("gtp request error: %v \n", err)
 		msg.ReplyText("机器人神了，我一会发现了就去修。")
@@ -73,7 +79,7 @@ func (g *GroupMessageHandler) ReplyText(msg *openwechat.Message) error {
 	reply = strings.TrimSpace(reply)
 	reply = strings.Trim(reply, "\n")
 	atText := "@" + groupSender.NickName
-	replyText := atText + reply
+	replyText := atText + " " + reply
 	_, err = msg.ReplyText(replyText)
 	if err != nil {
 		log.Printf("response group error: %v \n", err)

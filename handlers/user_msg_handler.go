@@ -59,8 +59,8 @@ func (g *UserMessageHandler) ReplyText(msg *openwechat.Message) error {
 	g.history[sender.NickName] = append(g.history[sender.NickName], requestText)
 	reply, err := g.gpt.Completion(g.history[sender.NickName]...)
 	if err != nil {
-		log.Printf("gtp request error: %v \n", err)
-		msg.ReplyText("机器人神了，我一会发现了就去修。")
+		log.Printf("gpt request error: %v \n", err)
+		msg.ReplyText("bug了，我一会发现了就去修。")
 		return err
 	}
 	if reply == "" {
