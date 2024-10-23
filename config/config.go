@@ -13,6 +13,16 @@ type Configuration struct {
 	ApiKey string `json:"api_key"`
 	// 自动通过好友
 	AutoPass bool `json:"auto_pass"`
+	// 客服人员手机号
+	Phone string `json:"phone"`
+	// 设置问题和回复
+	QuestionAndAnswer string `json:"question_and_answer"`
+	// 文字问题回复
+	AnswerMapStr map[string]string `json:"answer_map_str"`
+	// 图片问题回复
+	AnswerMapPic map[string]string `json:"answer_map_pic"`
+	// 视频问题回复
+	AnswerMapVideo map[string]string `json:"answer_map_video"`
 }
 
 var config *Configuration

@@ -12,6 +12,7 @@ import (
 	"github.com/869413421/wechatbot/ui/view/values"
 	"image"
 	"net/http"
+	"os"
 )
 
 type LoginView interface {
@@ -54,6 +55,8 @@ func (impl *Impl) OnEvent(e event.Event, data interface{}) {
 
 	switch e := e.(type) {
 	case system.DestroyEvent:
+		os.Exit(0)
+		return
 	case system.FrameEvent:
 		// 加载并显示图片
 		if err := loadImage(imageURL, img); err != nil {

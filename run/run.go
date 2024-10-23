@@ -14,7 +14,7 @@ func Run() {
 	go func() {
 		window := app.NewWindow(
 			app.Title("wechat robot"),
-			app.Size(unit.Dp(800), unit.Dp(600)),
+			app.Size(unit.Dp(600), unit.Dp(600)),
 		)
 		weApp := ui.New(window)
 

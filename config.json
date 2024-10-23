@@ -1,4 +1,16 @@
 {
   "api_key": "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",
-  "auto_pass": false
+  "auto_pass": true,
+  "phone": "18650491174",
+  "question_and_answer": "您说的话我不太明白[委屈]，您可以回复如下查询：\n回复1：店铺位置在哪？怎么上去？\n回复2：我是美团或抖音下单，如何预订呢？\n回复3：人工客服电话\n回复4：预订房间小程序\n",
+  "answer_map_str": {
+    "3": "18650491174",
+    "4": "您可以点击下方链接进入小程序预订（注意是台江茶亭店哦[耶]）：\n#小程序://胡小鸭/OdhUKXtNmNZZ3ep"
+  },
+  "answer_map_pic": {
+    "2": "C:\\Users\\Administrator\\Pictures\\Camera Roll\\局部截取_20241014_145447.png"
+  },
+  "answer_map_video": {
+    "1": "C:\\Users\\Administrator\\Pictures\\Camera Roll\\test.mp4"
+  }
 }

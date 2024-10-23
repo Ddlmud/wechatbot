@@ -46,17 +46,20 @@ func (a *App) RegisterView(index values.ViewIndexType, view values.View) {
 	a.views[index] = view
 }
 
-func (a *App) OnLogin(body []byte) {
+func (a *App) OnLogin(body openwechat.CheckLoginResponse) {
+	oldIndex := a.currentView
 	for _, view := range a.views {
 		view.OnLogin(body)
 	}
 
-	go func() {
-		if err := a.Loop(a.window); err != nil {
-			log.Fatal(err)
-		}
-		os.Exit(0)
-	}()
+	if values.ViewMin == oldIndex && a.currentView == values.ViewStart {
+		go func() {
+			if err := a.Loop(a.window); err != nil {
+				log.Fatal(err)
+			}
+			os.Exit(0)
+		}()
+	}
 }
 
 func (a *App) ShowLoginQrCode(uuid string) {
@@ -84,6 +87,7 @@ func (a *App) Loop(w *app.Window) error {
 
 		switch e := e.(type) {
 		case system.DestroyEvent:
+			os.Exit(0)
 			return e.Err
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
